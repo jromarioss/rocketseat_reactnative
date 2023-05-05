@@ -1,0 +1,80 @@
+import { useCallback, useState } from "react";
+import { Heading, VStack, SectionList, Text, useToast, Center } from "native-base";
+import { useFocusEffect } from "@react-navigation/native";
+
+import { ScreenHeader } from "@components/ScreenHeader";
+import { HistoryCard } from "@components/HistoryCard";
+import { Loading } from "@components/Loading";
+
+import { AppError } from "@utils/AppError";
+import { api } from "@services/api";
+import { HistoryGroupByDayDTO } from "@dtos/HistoryGroupByDayDTO";
+import { useAuth } from "@hooks/useAuth";
+
+export function History() {
+  const [isLoading, setIsLoading] = useState(true); //estado de carregamento
+  const [exercises, setExercises] = useState<HistoryGroupByDayDTO[]>([]);
+
+  const toast = useToast(); //componete de toast
+
+  const { refreshedToken } = useAuth();
+
+  async function fetchHistory() {
+    try {
+      setIsLoading(true); //seta o carregamento como true
+      const response = await api.get('/history'); //busca as informações no back-end
+      setExercises(response.data); //ai manda pro estado os dado do back-end
+
+    } catch(error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : "Não foi possível carregar o histórico.";
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchHistory();
+  }, [refreshedToken]))
+
+  return (
+    <VStack flex={1}>
+      <ScreenHeader title='Historico de Exercícios' />
+      
+      { isLoading ?
+        <Loading /> 
+        :
+        ( exercises?.length  > 0 ? 
+          <SectionList 
+            sections={exercises}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <HistoryCard data={item} />
+            )}
+            renderSectionHeader={({ section }) => (
+              <Heading color='gray.200' fontSize='md' mt={10} mb={3}>
+                {section.title}
+              </Heading>
+            )}
+            px={8}
+            contentContainerStyle={exercises.length === 0 && { flex: 1, justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
+          />
+          :
+          <Center flex={1}>
+            <Text color='gray.100' textAlign='center'>
+              Não há exercícios registrados ainda. {'\n'}
+              Vamos fazer exercícios hoje?
+            </Text>
+          </Center>
+        )
+      }
+    </VStack>
+  );
+}
