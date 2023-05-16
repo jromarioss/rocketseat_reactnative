@@ -22,7 +22,7 @@ export function CarStatus({ licencePlate = null, ...rest }: CarStatusProps) {
     <Container {...rest}>
       <IconBox>
         <Icon 
-          size={32} color={theme.COLORS.BRAND_LIGHT}
+          size={52} color={theme.COLORS.BRAND_LIGHT}
         />
       </IconBox>
 
