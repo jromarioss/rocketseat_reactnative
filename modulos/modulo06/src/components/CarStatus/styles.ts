@@ -24,7 +24,7 @@ export const Message = styled.Text`
   color: ${({ theme }) => theme.COLORS.GRAY_100};
   font-size: ${({ theme }) => theme.FONT_SIZE.SM}px;
   font-family: ${({ theme }) => theme.FONT_FAMILY.REGULAR};
-  flex: 1; //para quebrar e ir para linha de baixo
+  flex: 1; /*para quebrar e ir para linha de baixo */
   text-align: justify;
   /* textAlignVertical: center; */
   margin-bottom: 10px;
